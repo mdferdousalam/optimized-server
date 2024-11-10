@@ -1,0 +1,4 @@
+"email,amount,transactionDate"
+"user1@example.com,100.50,2024-11-10"
+"user2@example.com,200.00,2024-11-11"
+"user3@example.com,150.75,2024-11-12"

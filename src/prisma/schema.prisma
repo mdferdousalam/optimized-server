@@ -7,20 +7,31 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Define models here
+// User model for platform users
 model User {
   id          Int      @id @default(autoincrement())
   email       String   @unique
   password    String
+  name        String
   role        String   @default("user")
   createdAt   DateTime @default(now())
-  donations   Donation[]
 }
 
+// Donor model for external donors
+model Donor {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  phoneNumber  String?
+  createdAt    DateTime @default(now())
+  donations    Donation[] // Donor has many donations
+}
+
+// Donation model
 model Donation {
   id             Int      @id @default(autoincrement())
   donorId        Int
-  donor          User     @relation(fields: [donorId], references: [id])
+  donor          Donor    @relation(fields: [donorId], references: [id]) // Relation back to Donor
   amount         Float
   transactionDate DateTime
   createdAt      DateTime @default(now())

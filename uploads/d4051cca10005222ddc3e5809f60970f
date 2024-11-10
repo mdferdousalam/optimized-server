@@ -1,0 +1,4 @@
+email,amount,transactionDate,name,phoneNumber
+user1@example.com,100.50,2024-11-10,John Doe,123-456-7890
+user2@example.com,200.00,2024-11-11,Jane Smith,234-567-8901
+user3@example.com,150.75,2024-11-12,Bob Johnson,345-678-9012

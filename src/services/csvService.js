@@ -10,33 +10,52 @@ exports.processCSV = (filePath) => {
       .on("data", (data) => results.push(data))
       .on("end", async () => {
         for (const row of results) {
-          const { email, amount, transactionDate } = row;
-          let donor = await prisma.user.findUnique({ where: { email } });
+          const { email, amount, transactionDate, name, phoneNumber } = row;
 
-          if (donor) {
-            await prisma.donation.create({
-              data: {
-                donorId: donor.id,
-                amount: parseFloat(amount),
-                transactionDate: new Date(transactionDate),
-              },
-            });
-          } else {
-            await prisma.user.create({
-              data: {
-                email,
-                donations: {
-                  create: {
-                    amount: parseFloat(amount),
-                    transactionDate: new Date(transactionDate),
+          if (!email) {
+            console.error("Missing email in row:", row);
+            continue; // Skip rows with no email
+          }
+
+          try {
+            // Check if the donor exists in the Donor table
+            let donor = await prisma.donor.findUnique({ where: { email } });
+
+            // If the donor does not exist, create a new donor
+            if (!donor) {
+              donor = await prisma.donor.create({
+                data: {
+                  email,
+                  name,
+                  phoneNumber,
+                  donations: {
+                    create: {
+                      amount: parseFloat(amount),
+                      transactionDate: new Date(transactionDate),
+                    },
                   },
                 },
-              },
-            });
+              });
+            } else {
+              // If donor exists, create a donation for them
+              await prisma.donation.create({
+                data: {
+                  donorId: donor.id,
+                  amount: parseFloat(amount),
+                  transactionDate: new Date(transactionDate),
+                },
+              });
+            }
+          } catch (error) {
+            console.error("Error processing row:", row, error.message);
+            continue; // Skip to the next row on error
           }
         }
         resolve();
       })
-      .on("error", reject);
+      .on("error", (error) => {
+        console.error("Error reading CSV file:", error.message);
+        reject(error);
+      });
   });
 };
