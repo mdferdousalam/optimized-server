@@ -37,21 +37,44 @@ exports.processCSV = (filePath) => {
                 },
               });
             } else {
-              // If donor exists, create a donation for them
-              await prisma.donation.create({
-                data: {
+              // Check for duplicate donation
+              const duplicateDonation = await prisma.donation.findFirst({
+                where: {
                   donorId: donor.id,
                   amount: parseFloat(amount),
                   transactionDate: new Date(transactionDate),
                 },
               });
+
+              // If no duplicate found, create a new donation
+              if (!duplicateDonation) {
+                await prisma.donation.create({
+                  data: {
+                    donorId: donor.id,
+                    amount: parseFloat(amount),
+                    transactionDate: new Date(transactionDate),
+                  },
+                });
+              } else {
+                console.log("Duplicate donation found, skipping:", row);
+              }
             }
           } catch (error) {
             console.error("Error processing row:", row, error.message);
             continue; // Skip to the next row on error
           }
         }
-        resolve();
+
+        // Delete the uploaded file after processing
+        fs.unlink(filePath, (err) => {
+          if (err) {
+            console.error("Error deleting file:", err.message);
+            reject(err);
+          } else {
+            console.log("File successfully deleted:", filePath);
+            resolve();
+          }
+        });
       })
       .on("error", (error) => {
         console.error("Error reading CSV file:", error.message);
