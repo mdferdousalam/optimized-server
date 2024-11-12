@@ -1,5 +1,31 @@
 const reportService = require("../services/reportService");
 
+exports.getDonors = async (req, res) => {
+  try {
+    // Default to page 1 and limit 10 if not provided
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const report = await reportService.getDonors(page, limit);
+
+    res.json(report);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getDonations = async (req, res) => {
+  try {
+    // Default to page 1 and limit 10 if not provided
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const report = await reportService.getDonations(page, limit);
+
+    res.json(report);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 exports.getDonorReport = async (req, res) => {
   try {
     const report = await reportService.getDonorReport(req.params.donorId);
