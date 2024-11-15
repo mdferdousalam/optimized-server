@@ -6,6 +6,7 @@ const csvRoutes = require("./routes/csvRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 const { checkDatabaseConnection } = require("./prisma/checkDatabaseConnection");
 const app = express();
+const PORT = process.env.PORT || 8000;
 app.use(cors());
 app.use(express.json());
 
@@ -24,4 +25,6 @@ checkDatabaseConnection().then((isConnected) => {
 });
 
 
-app.listen(8000, () => console.log("Server running on http://localhost:8000"));
+app.listen(PORT, () =>
+  console.log(`Server running on http://localhost:${PORT}`)
+);
