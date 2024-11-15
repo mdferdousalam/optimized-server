@@ -1,17 +1,63 @@
 const prisma = require("../prisma/prismaClient");
 
+// exports.getDonors = async (page, limit) => {
+//   const skip = (page - 1) * limit;
+//   const donors = await prisma.donor.findMany({
+//     skip: skip,
+//     take: limit,
+//   });
+
+//   // Count total donors for pagination metadata
+//   const totalDonors = await prisma.donor.count();
+
+//   return {
+//     donors,
+//     totalDonors,
+//     totalPages: Math.ceil(totalDonors / limit),
+//     currentPage: page,
+//   };
+// };
+
 exports.getDonors = async (page, limit) => {
   const skip = (page - 1) * limit;
+
+  // Fetch donors with the total donation amount for each donor
   const donors = await prisma.donor.findMany({
     skip: skip,
     take: limit,
+    include: {
+      donations: {
+        select: {
+          amount: true,
+        },
+      },
+    },
   });
+
+  // Calculate total donations for each donor
+  const donorsWithTotalDonation = await Promise.all(
+    donors.map(async (donor) => {
+      const totalDonationAmount = await prisma.donation.aggregate({
+        _sum: {
+          amount: true,
+        },
+        where: {
+          donorId: donor.id,
+        },
+      });
+
+      return {
+        ...donor,
+        totalDonationAmount: totalDonationAmount._sum.amount || 0, // If no donations, default to 0
+      };
+    })
+  );
 
   // Count total donors for pagination metadata
   const totalDonors = await prisma.donor.count();
 
   return {
-    donors,
+    donors: donorsWithTotalDonation,
     totalDonors,
     totalPages: Math.ceil(totalDonors / limit),
     currentPage: page,
@@ -56,7 +102,6 @@ exports.getDonations = async (page, limit) => {
     currentPage: page,
   };
 };
-
 
 exports.getDonorReport = async (donorId) => {
   return await prisma.donation.findMany({
