@@ -13,26 +13,36 @@ model User {
   email       String   @unique
   password    String
   name        String
-  role        String   @default("user")
+  role        String   @default("ROLE_ADMIN")
   createdAt   DateTime @default(now())
 }
 
 // Donor model for external donors
 model Donor {
-  id           Int      @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   name         String
-  email        String   @unique
+  email        String?   @unique
+  iban         String    @unique
   phoneNumber  String?
-  createdAt    DateTime @default(now())
-  donations    Donation[] // Donor has many donations
+  createdAt    DateTime  @default(now())
+  donations    Donation[] 
 }
 
-// Donation model
+
+// Donation model with fields aligned to the CSV file structure
 model Donation {
-  id             Int      @id @default(autoincrement())
-  donorId        Int
-  donor          Donor    @relation(fields: [donorId], references: [id]) 
-  amount         Float
-  transactionDate DateTime
-  createdAt      DateTime @default(now())
+  id                Int      @id @default(autoincrement())
+  donorId           Int
+  donor             Donor    @relation(fields: [donorId], references: [id]) 
+  amount            Float    @map("Betrag")               
+  currency          String   @default("EUR") @map("Waehrung") 
+  transactionDate   DateTime @map("Valutadatum")          
+  bookingText       String   @map("Buchungstext")         
+  purpose           String   @map("Verwendungszweck")     
+  payerName         String   @map("Beguenstigter/Zahlungspflichtiger") 
+  iban              String   @map("Kontonummer/IBAN")     
+  bic               String   @map("BIC (SWIFT-Code)")     
+  info              String?  @map("Info")                 
+  createdAt         DateTime @default(now())
 }
+
