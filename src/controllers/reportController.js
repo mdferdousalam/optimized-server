@@ -48,6 +48,7 @@ exports.searchDonations = async (req, res) => {
   try {
     const {
       donorId,
+      iban,
       startDate,
       endDate,
       amountMin,
@@ -60,10 +61,10 @@ exports.searchDonations = async (req, res) => {
 
     // Initialize filter object
     const filters = {};
-console.log(req.query)
+    console.log(req.query)
     // Validate and set donorId
     if (donorId) filters.donorId = parseInt(donorId, 10);
-console.log(donorId)
+
     // Validate and set transactionDate range
     if (startDate || endDate) {
       filters.transactionDate = {};
@@ -90,7 +91,7 @@ console.log(donorId)
         if (!isNaN(maxAmount)) filters.amount.lte = maxAmount;
       }
     }
-
+if (iban) filters.iban = iban;
     // Set sort options only if sortBy is defined
     const sortOptions = {};
     // Conditionally add sort options
