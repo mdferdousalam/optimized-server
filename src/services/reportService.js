@@ -139,3 +139,37 @@ exports.searchDonations = async (filters, sortOptions, page, pageSize) => {
     currentPage: page,
   };
 };
+
+
+exports.getDateRangeReportOfDonations = async (transactionDate) => {
+  return await prisma.donation.findMany({
+    where: {
+      transactionDate: transactionDate,
+    },
+  });
+};
+
+exports.searchDonationsReport = async (
+  filters,
+  sortOptions,
+  page,
+  pageSize
+) => {
+  const donations = await prisma.donation.findMany({
+    where: filters,
+    orderBy: sortOptions,
+    skip: (page - 1) * pageSize,
+    take: pageSize,
+  });
+
+  const totalCount = await prisma.donation.count({
+    where: filters,
+  });
+
+  return {
+    donations,
+    totalCount,
+    totalPages: Math.ceil(totalCount / pageSize),
+    currentPage: page,
+  };
+};

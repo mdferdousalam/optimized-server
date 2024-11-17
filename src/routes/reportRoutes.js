@@ -10,4 +10,6 @@ router.get("/donations", authMiddleware, reportController.getDonations)
 router.get("/dates", authMiddleware, reportController.getDateRangeReport);
 // Donations search with filters and sorting
 router.get("/search", authMiddleware, reportController.searchDonations);
+router.get("/donation-report", authMiddleware, reportController.getDonationsReport);
+
 module.exports = router;
