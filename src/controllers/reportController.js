@@ -47,8 +47,7 @@ exports.getDateRangeReport = async (req, res) => {
 exports.searchDonations = async (req, res) => {
   try {
     const {
-      donorId,
-      iban,
+      searchTerm,
       startDate,
       endDate,
       amountMin,
@@ -61,9 +60,17 @@ exports.searchDonations = async (req, res) => {
 
     // Initialize filter object
     const filters = {};
-    console.log(req.query)
-    // Validate and set donorId
-    if (donorId) filters.donorId = parseInt(donorId, 10);
+    // Check searchTerm and apply it to multiple fields
+    if (searchTerm) {
+      const searchInt = parseInt(searchTerm, 10);
+      filters.OR = [
+        { donorId: !isNaN(searchInt) ? searchInt : undefined },
+        { iban: { contains: searchTerm, mode: "insensitive" } },
+        { payerName: { contains: searchTerm, mode: "insensitive" } },
+        { email: { contains: searchTerm, mode: "insensitive" } },
+        {sourceType:{contains: searchTerm, mode: "insensitive"}}
+      ].filter(Boolean);
+    }
 
     // Validate and set transactionDate range
     if (startDate || endDate) {
@@ -91,11 +98,11 @@ exports.searchDonations = async (req, res) => {
         if (!isNaN(maxAmount)) filters.amount.lte = maxAmount;
       }
     }
-if (iban) filters.iban = iban;
+  
     // Set sort options only if sortBy is defined
     const sortOptions = {};
     // Conditionally add sort options
-   
+
     if (sortBy && sortOrder) {
       sortOptions[sortBy] = sortOrder === "desc" ? "desc" : "asc";
     }
@@ -166,3 +173,15 @@ exports.getDonationsReport = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.getStatistics = async (req, res) => {
+  try {
+    const statistics = await reportService.getStatistics();
+    return res.status(200).json({
+      success: true,
+      data: statistics,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
