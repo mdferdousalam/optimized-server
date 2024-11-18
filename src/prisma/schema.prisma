@@ -22,7 +22,7 @@ model Donor {
   id           Int       @id @default(autoincrement())
   name         String
   email        String?   @unique
-  iban         String    @unique
+  iban         String?    @unique
   phoneNumber  String?
   createdAt    DateTime  @default(now())
   donations    Donation[] 
@@ -35,14 +35,17 @@ model Donation {
   donorId           Int
   donor             Donor    @relation(fields: [donorId], references: [id]) 
   amount            Float    @map("Betrag")               
-  currency          String   @default("EUR") @map("Waehrung") 
+  currency          String?   @default("EUR") @map("Waehrung") 
   transactionDate   DateTime @map("Valutadatum")          
-  bookingText       String   @map("Buchungstext")         
-  purpose           String   @map("Verwendungszweck")     
+  bookingText       String?   @map("Buchungstext")         
+  purpose           String?   @map("Verwendungszweck")     
   payerName         String   @map("Beguenstigter/Zahlungspflichtiger") 
-  iban              String   @map("Kontonummer/IBAN")     
-  bic               String   @map("BIC (SWIFT-Code)")     
-  info              String?  @map("Info")                 
+  iban              String?   @map("Kontonummer/IBAN")     
+  bic               String?   @map("BIC (SWIFT-Code)")     
+  info              String?  @map("Info")  
+  sourceType        String 
+  email             String?
+  phoneNumber       String?              
   createdAt         DateTime @default(now())
 }
 

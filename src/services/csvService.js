@@ -1,50 +1,73 @@
 const csv = require("csv-parser");
 const fs = require("fs");
 const prisma = require("../prisma/prismaClient");
+const parseDate = (dateStr) => {
+     // Convert from 'DD.MM.YYYY' to 'YYYY-MM-DD'
+    
+  try {
+    const [day, month, year] = dateStr.split(".");
+    return `${year}-${month}-${day}T00:00:00Z`;
+  } catch (error) {
+    console.log(error)
+  }
+};
 
-exports.processCSV = (filePath) => {
+exports.processCSV = (filePath, source) => {
   return new Promise((resolve, reject) => {
     const results = [];
     fs.createReadStream(filePath)
-      .pipe(csv({ separator: ";" })) // Set the delimiter to semicolon
+      .pipe(csv({ separator: source === "bank" ? ";" : "," }))
       .on("data", (data) => results.push(data))
       .on("end", async () => {
         for (const row of results) {
-          const {
-            Valutadatum: transactionDate,
-            Buchungstext: bookingText,
-            Verwendungszweck: purpose,
-            "Beguenstigter/Zahlungspflichtiger": payerName,
-            "Kontonummer/IBAN": iban,
-            "BIC (SWIFT-Code)": bic,
-            Betrag: amount,
-            Waehrung: currency,
-            Info: info,
-          } = row;
+          const donorData =
+            source === "bank"
+              ? {
+                  transactionDate: parseDate(row.Valutadatum),
+                  bookingText: row.Buchungstext,
+                  purpose: row.Verwendungszweck,
+                  payerName: row["Beguenstigter/Zahlungspflichtiger"],
+                  iban: row["Kontonummer/IBAN"],
+                  bic: row["BIC (SWIFT-Code)"],
+                  amount: row.Betrag,
+                  currency: row.Waehrung,
+                  info: row.Info,
+                  sourceType: "bank",
+                }
+              : {
+                  transactionDate: parseDate(row.Valutadatum),
+                  purpose: row["Verwendungszweck/ Product ID"],
+                  payerName: row["Beguenstigter/Zahlungspflichtiger/ Name"],
+                  email: row["Absender E-Mail-Adresse"],
+                  amount: row["Betrag/Amount"],
+                  currency: row["Waehrung/Currency"],
+                  phoneNumber: row["Telefon"],
+                  info: row["Info"],
+                  sourceType: "paypal",
+                };
 
           try {
-            // Check if the donor exists in the Donor table
-            let donor = await prisma.donor.findUnique({ where: { iban } });
+            const { payerName, email, iban } = donorData;
 
-            // If the donor does not exist, create a new donor
+            // Find donor by either email or iban
+            let donor = await prisma.donor.findFirst({
+              where: { OR: [{ email }, { iban }] },
+            });
+
+            // If donor exists, use existing name, else create new donor
             if (!donor) {
               donor = await prisma.donor.create({
                 data: {
-                  email: null, // Email is optional in the CSV
                   name: payerName,
-                  iban,
-                  phoneNumber: null, // Phone number is optional in the CSV
+                  email: email || null,
+                  iban: iban || null,
+                  phoneNumber: donorData.phoneNumber || null,
                   donations: {
                     create: {
-                      amount: parseFloat(amount),
-                      currency: currency || "EUR",
-                      transactionDate: new Date(transactionDate),
-                      bookingText,
-                      purpose,
-                      payerName,
-                      iban,
-                      bic,
-                      info,
+                      ...donorData,
+                      amount: parseFloat(donorData.amount),
+                      // transactionDate: new Date(donorData.transactionDate),
+                      
                     },
                   },
                 },
@@ -54,26 +77,21 @@ exports.processCSV = (filePath) => {
               const duplicateDonation = await prisma.donation.findFirst({
                 where: {
                   donorId: donor.id,
-                  amount: parseFloat(amount),
-                  transactionDate: new Date(transactionDate),
-                  bookingText,
+                  amount: parseFloat(donorData.amount),
+                  transactionDate: new Date(donorData.transactionDate),
+                  bookingText: donorData.bookingText,
                 },
               });
 
-              // If no duplicate found, create a new donation
+              // Create a new donation if no duplicate is found
               if (!duplicateDonation) {
                 await prisma.donation.create({
                   data: {
                     donorId: donor.id,
-                    amount: parseFloat(amount),
-                    currency: currency || "EUR",
-                    transactionDate: new Date(transactionDate),
-                    bookingText,
-                    purpose,
-                    payerName,
-                    iban,
-                    bic,
-                    info,
+                    ...donorData,
+                    amount: parseFloat(donorData.amount),
+                    // transactionDate: new Date(donorData.transactionDate),
+                    
                   },
                 });
               } else {

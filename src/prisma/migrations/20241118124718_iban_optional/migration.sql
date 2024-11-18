@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Donor" ALTER COLUMN "iban" DROP NOT NULL;
