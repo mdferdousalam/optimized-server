@@ -63,13 +63,19 @@ exports.searchDonations = async (req, res) => {
     // Check searchTerm and apply it to multiple fields
     if (searchTerm) {
       const searchInt = parseInt(searchTerm, 10);
-      filters.OR = [
-        { donorId: !isNaN(searchInt) ? searchInt : undefined },
-        { iban: { contains: searchTerm, mode: "insensitive" } },
-        { payerName: { contains: searchTerm, mode: "insensitive" } },
-        { email: { contains: searchTerm, mode: "insensitive" } },
-        {sourceType:{contains: searchTerm, mode: "insensitive"}}
-      ].filter(Boolean);
+
+      if (!isNaN(searchInt)) {
+        // If searchTerm is numeric, filter strictly by donorId
+        filters.donorId = searchInt;
+      } else {
+        // Otherwise, apply OR logic for other fields
+        filters.OR = [
+          { iban: { contains: searchTerm, mode: "insensitive" } },
+          { payerName: { contains: searchTerm, mode: "insensitive" } },
+          { email: { contains: searchTerm, mode: "insensitive" } },
+          { sourceType: { contains: searchTerm, mode: "insensitive" } },
+        ];
+      }
     }
 
     // Validate and set transactionDate range
