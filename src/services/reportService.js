@@ -15,6 +15,9 @@ exports.getDonors = async (page, limit) => {
   const donors = await prisma.donor.findMany({
     skip: skip,
     take: limit,
+    orderBy: {
+      createdAt: "desc", // Sort by latest created donors first
+    },
     include: {
       donations: {
         select: {
@@ -61,6 +64,9 @@ exports.getDonations = async (page, limit) => {
   const donations = await prisma.donation.findMany({
     skip: skip,
     take: limit,
+    orderBy: {
+      createdAt: "desc", // Sort by latest created first
+    },
     include: {
       donor: {
         // Assuming you have a 'donor' relation set up in Prisma schema
