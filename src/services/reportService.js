@@ -57,6 +57,28 @@ exports.getDonors = async (page, limit) => {
   };
 };
 
+exports.deleteDonor = async (id) => {
+  // Check if the donor exists
+  const donor = await prisma.donor.findUnique({
+    where: { id },
+  });
+
+  if (!donor) {
+    return null; // Donor not found
+  }
+
+  // Delete the donor and their related donations
+  await prisma.donation.deleteMany({
+    where: { donorId: id },
+  });
+
+  await prisma.donor.delete({
+    where: { id },
+  });
+
+  return true; // Successful deletion
+};
+
 exports.getDonations = async (page, limit) => {
   const skip = (page - 1) * limit;
 
@@ -89,6 +111,16 @@ exports.getDonations = async (page, limit) => {
     currentPage: page,
   };
 };
+
+exports.deleteDonation = async (id) => {
+  // Delete the donation by ID
+  const donation = await prisma.donation.delete({
+    where: { id: parseInt(id) },
+  });
+
+  return donation;
+};
+
 
 exports.getDonorReport = async (donorId) => {
   return await prisma.donation.findMany({

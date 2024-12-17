@@ -13,6 +13,26 @@ exports.getDonors = async (req, res) => {
   }
 };
 
+exports.deleteDonor = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const ID = parseInt(id)
+
+    // Call the service function to delete the donor
+    const result = await reportService.deleteDonor(ID);
+
+    if (!result) {
+      return res.status(404).json({ error: "Donor not found" });
+    }
+
+    res.json({ message: "Donor deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 exports.getDonations = async (req, res) => {
   try {
     // Default to page 1 and limit 10 if not provided
@@ -21,6 +41,23 @@ exports.getDonations = async (req, res) => {
     const report = await reportService.getDonations(page, limit);
 
     res.json(report);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.deleteDonation = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Call service function to delete the donation
+    const result = await reportService.deleteDonation(id);
+
+    if (!result) {
+      return res.status(404).json({ message: "Donation not found" });
+    }
+
+    res.json({ message: "Donation deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
