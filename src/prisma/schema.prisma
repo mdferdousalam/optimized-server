@@ -42,7 +42,7 @@ model Donation {
   payerName         String   @map("Beguenstigter/Zahlungspflichtiger") 
   iban              String?  @map("Kontonummer/IBAN")     
   bic               String?  @map("BIC (SWIFT-Code)")     
-  info              String?  @map("Info")  
+  info              String?  @map("Zweck ID")  
   sourceType        String 
   email             String?
   phoneNumber       String?              

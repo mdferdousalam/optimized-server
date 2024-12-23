@@ -110,6 +110,7 @@ exports.searchDonations = async (req, res) => {
           { iban: { contains: searchTerm, mode: "insensitive" } },
           { payerName: { contains: searchTerm, mode: "insensitive" } },
           { email: { contains: searchTerm, mode: "insensitive" } },
+          { info: { contains: searchTerm, mode: "insensitive" } },
           { sourceType: { contains: searchTerm, mode: "insensitive" } },
         ];
       }

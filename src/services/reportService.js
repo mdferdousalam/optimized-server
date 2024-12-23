@@ -93,6 +93,7 @@ exports.getDonations = async (page, limit) => {
       donor: {
         // Assuming you have a 'donor' relation set up in Prisma schema
         select: {
+          id: true,
           name: true,
           email: true,
           phoneNumber: true,
