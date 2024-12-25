@@ -26,6 +26,7 @@ model Donor {
   phoneNumber  String?
   createdAt    DateTime  @default(now())
   donations    Donation[] 
+  info         Int  @unique
 }
 
 
