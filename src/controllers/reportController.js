@@ -103,14 +103,15 @@ exports.searchDonations = async (req, res) => {
 
       if (!isNaN(searchInt)) {
         // If searchTerm is numeric, filter strictly by donorId
-        filters.donorId = searchInt;
+        // filters.donorId = searchInt;
+        filters.info = searchInt;
       } else {
         // Otherwise, apply OR logic for other fields
         filters.OR = [
           { iban: { contains: searchTerm, mode: "insensitive" } },
           { payerName: { contains: searchTerm, mode: "insensitive" } },
           { email: { contains: searchTerm, mode: "insensitive" } },
-          { info: { contains: searchTerm, mode: "insensitive" } },
+          // { info: { contains: searchTerm, mode: "insensitive" } },
           { sourceType: { contains: searchTerm, mode: "insensitive" } },
         ];
       }
