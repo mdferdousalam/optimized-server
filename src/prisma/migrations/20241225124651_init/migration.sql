@@ -34,7 +34,7 @@ CREATE TABLE "Donation" (
     "Beguenstigter/Zahlungspflichtiger" TEXT NOT NULL,
     "Kontonummer/IBAN" TEXT,
     "BIC (SWIFT-Code)" TEXT,
-    "Info" TEXT,
+    "Zweck ID" INTEGER,
     "sourceType" TEXT NOT NULL,
     "email" TEXT,
     "phoneNumber" TEXT,

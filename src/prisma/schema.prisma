@@ -26,7 +26,6 @@ model Donor {
   phoneNumber  String?
   createdAt    DateTime  @default(now())
   donations    Donation[] 
-  info         Int  @unique
 }
 
 
@@ -43,7 +42,7 @@ model Donation {
   payerName         String   @map("Beguenstigter/Zahlungspflichtiger") 
   iban              String?  @map("Kontonummer/IBAN")     
   bic               String?  @map("BIC (SWIFT-Code)")     
-  info              String?  @map("Zweck ID")  
+  info              Int?  @map("Zweck ID")  
   sourceType        String 
   email             String?
   phoneNumber       String?              
