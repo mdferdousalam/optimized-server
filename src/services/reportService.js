@@ -141,8 +141,17 @@ exports.getDateRangeReport = async ({ startDate, endDate }) => {
 };
 
 exports.checkExactInfoMatch = async (infoValue) => {
+  // Convert infoValue to string
+  const stringValue = String(infoValue).trim(); // Convert to string and trim whitespace
+
+  // Check if the stringValue is not empty
+  if (stringValue === "") {
+    return false; // Return false if it's an empty string
+  }
+
+  // Query the database for an exact match
   const match = await prisma.donation.findFirst({
-    where: { info: infoValue },
+    where: { info: stringValue }, // Use the stringValue for the query
   });
   return !!match; // Return true if match exists, otherwise false
 };

@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "Donation" ALTER COLUMN "Zweck ID" SET DATA TYPE TEXT;

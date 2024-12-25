@@ -9,43 +9,41 @@ generator client {
 
 // User model for platform users
 model User {
-  id          Int      @id @default(autoincrement())
-  email       String   @unique
-  password    String
-  name        String
-  role        String   @default("ROLE_ADMIN")
-  createdAt   DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("ROLE_ADMIN")
+  createdAt DateTime @default(now())
 }
 
 // Donor model for external donors
 model Donor {
-  id           Int       @id @default(autoincrement())
-  name         String
-  email        String?   @unique
-  iban         String?    @unique
-  phoneNumber  String?
-  createdAt    DateTime  @default(now())
-  donations    Donation[] 
+  id          Int        @id @default(autoincrement())
+  name        String
+  email       String?    @unique
+  iban        String?    @unique
+  phoneNumber String?
+  createdAt   DateTime   @default(now())
+  donations   Donation[]
 }
-
 
 // Donation model with fields aligned to the CSV file structure
 model Donation {
-  id                Int      @id @default(autoincrement())
-  donorId           Int
-  donor             Donor    @relation(fields: [donorId], references: [id]) 
-  amount            Float    @map("Betrag")               
-  currency          String?  @default("EUR") @map("Waehrung") 
-  transactionDate   DateTime @map("Valutadatum")          
-  bookingText       String?  @map("Buchungstext")         
-  purpose           String?  @map("Verwendungszweck")     
-  payerName         String   @map("Beguenstigter/Zahlungspflichtiger") 
-  iban              String?  @map("Kontonummer/IBAN")     
-  bic               String?  @map("BIC (SWIFT-Code)")     
-  info              String?  @map("Zweck ID")  
-  sourceType        String 
-  email             String?
-  phoneNumber       String?              
-  createdAt         DateTime @default(now())
+  id              Int      @id @default(autoincrement())
+  donorId         Int
+  donor           Donor    @relation(fields: [donorId], references: [id])
+  amount          Float    @map("Betrag")
+  currency        String?  @default("EUR") @map("Waehrung")
+  transactionDate DateTime @map("Valutadatum")
+  bookingText     String?  @map("Buchungstext")
+  purpose         String?  @map("Verwendungszweck")
+  payerName       String   @map("Beguenstigter/Zahlungspflichtiger")
+  iban            String?  @map("Kontonummer/IBAN")
+  bic             String?  @map("BIC (SWIFT-Code)")
+  info            String?  @map("Zweck ID")
+  sourceType      String
+  email           String?
+  phoneNumber     String?
+  createdAt       DateTime @default(now())
 }
-

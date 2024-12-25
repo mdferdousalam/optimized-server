@@ -107,7 +107,7 @@ exports.searchDonations = async (req, res) => {
          isExactInfoMatch = await reportService.checkExactInfoMatch(searchInt);
 
          if (isExactInfoMatch) {
-           filters.OR = [{ info: searchInt }];
+           filters.OR = [{ info: String(searchInt) }];
          } else {
            filters.OR = [{ donorId: searchInt }];
          }

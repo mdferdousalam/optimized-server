@@ -63,6 +63,9 @@ exports.processCSV = async (filePath, source) => {
         .on("data", (data) => results.push(data))
         .on("end", async () => {
           for (const row of results) {
+            const infoValue = row["Zweck ID"]
+              ? row["Zweck ID"].toString()
+              : null;
             const donorData =
               source === "bank"
                 ? {
@@ -74,7 +77,7 @@ exports.processCSV = async (filePath, source) => {
                     bic: row["BIC (SWIFT-Code)"],
                     amount: row.Betrag,
                     currency: row.Waehrung,
-                    info: row["Zweck ID"],
+                    info: infoValue,
                     sourceType: "bank",
                   }
                 : {
@@ -85,7 +88,7 @@ exports.processCSV = async (filePath, source) => {
                     amount: row["Betrag/Amount"],
                     currency: row["Waehrung/Currency"],
                     phoneNumber: row["Telefon"],
-                    info: row["Zweck ID"],
+                    info: infoValue,
                     sourceType: "paypal",
                   };
 
