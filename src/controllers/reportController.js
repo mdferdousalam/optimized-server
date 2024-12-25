@@ -97,24 +97,30 @@ exports.searchDonations = async (req, res) => {
 
     // Initialize filter object
     const filters = {};
+     let isExactInfoMatch = false;
     // Check searchTerm and apply it to multiple fields
     if (searchTerm) {
       const searchInt = parseInt(searchTerm, 10);
 
-      if (!isNaN(searchInt)) {
-        // If searchTerm is numeric, filter strictly by donorId
-        // filters.donorId = searchInt;
-        filters.info = searchInt;
-      } else {
-        // Otherwise, apply OR logic for other fields
-        filters.OR = [
-          { iban: { contains: searchTerm, mode: "insensitive" } },
-          { payerName: { contains: searchTerm, mode: "insensitive" } },
-          { email: { contains: searchTerm, mode: "insensitive" } },
-          // { info: { contains: searchTerm, mode: "insensitive" } },
-          { sourceType: { contains: searchTerm, mode: "insensitive" } },
-        ];
-      }
+       if (!isNaN(searchInt)) {
+         // Check if `info` matches exactly
+         isExactInfoMatch = await reportService.checkExactInfoMatch(searchInt);
+
+         if (isExactInfoMatch) {
+           filters.OR = [{ info: searchInt }];
+         } else {
+           filters.OR = [{ donorId: searchInt }];
+         }
+       } else {
+         // Otherwise, apply OR logic for other fields
+         filters.OR = [
+           { iban: { contains: searchTerm, mode: "insensitive" } },
+           { payerName: { contains: searchTerm, mode: "insensitive" } },
+           { email: { contains: searchTerm, mode: "insensitive" } },
+           // { info: { contains: searchTerm, mode: "insensitive" } },
+           { sourceType: { contains: searchTerm, mode: "insensitive" } },
+         ];
+       }
     }
 
     // Validate and set transactionDate range

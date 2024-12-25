@@ -140,6 +140,14 @@ exports.getDateRangeReport = async ({ startDate, endDate }) => {
   });
 };
 
+exports.checkExactInfoMatch = async (infoValue) => {
+  const match = await prisma.donation.findFirst({
+    where: { info: infoValue },
+  });
+  return !!match; // Return true if match exists, otherwise false
+};
+
+
 exports.searchDonations = async (filters, sortOptions, page, pageSize) => {
   const donations = await prisma.donation.findMany({
     where: filters,
