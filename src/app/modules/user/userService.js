@@ -23,12 +23,13 @@ class UserService extends BaseService {
 			const token = jwt.sign(
 				{ id: user._id, role: user.role, name: user.name },
 				config.secrete,
-				{ expiresIn: '1h' },
+				{ expiresIn: '1d' },
 			);
-			user.token = token;
-			//omit password from user object
-			user.password = undefined;
-			return user;
+			const data = {
+				token,
+				user,
+			}
+			return data;
 		}
 		return null;
 	}

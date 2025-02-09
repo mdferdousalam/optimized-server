@@ -28,5 +28,4 @@ router.delete(
 	UserController.deleteById,
 );
 
-// module.exports = router;
 export default router;

@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import User from '../modules/user/userModel.js';
+import * as config from '../config/index.js';
 
 const authMiddleware = (allowedRoles = []) => {
 	return async (req, res, next) => {
@@ -9,7 +10,7 @@ const authMiddleware = (allowedRoles = []) => {
 				return res.status(401).json({ message: 'Access denied' });
 			}
 
-			const decoded = jwt.verify(token, process.env.JWT_SECRET);
+			const decoded = jwt.verify(token, config.secrete);
 			const user = await User.findById(decoded.id);
 			if (!user) {
 				return res.status(401).json({ message: 'User not found' });
